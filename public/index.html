@@ -517,9 +517,16 @@
       text-decoration: underline;
     }
 
-    .study-journal {
+    .study-meta {
       font-size: 0.75rem;
       color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 8px;
+    }
+
+    .study-authors {
+      font-style: italic;
     }
 
     .no-studies {
@@ -538,6 +545,11 @@
       font-size: 0.8rem;
       color: var(--text-dim);
       margin-top: 10px;
+      margin-bottom: 12px;
+    }
+
+    .examples.after-results {
+      margin-bottom: 16px;
     }
 
     /* ---- FOOTER ---- */
@@ -562,8 +574,11 @@
       .site-title { font-size: 2rem; }
       header::after { display: none; }
       .search-form { flex-direction: column; }
+      .search-btn { padding: 14px 20px; }
       .evidence-level { font-size: 2rem; }
       .evidence-hero { padding: 24px 22px; }
+      .evidence-scale { flex-direction: column; gap: 6px; }
+      .study-meta { flex-direction: column; gap: 2px; }
     }
   </style>
 </head>
@@ -581,7 +596,7 @@
         type="text"
         id="search-input"
         class="search-input"
-        placeholder="What are you wondering about?"
+        placeholder="e.g. creatine, vitamin D, ashwagandha"
         aria-label="Search for a supplement or health claim"
         spellcheck="false"
       />
@@ -599,7 +614,7 @@
       <span class="example-chip" data-query="ashwagandha">ashwagandha</span>
       <span class="example-chip" data-query="probiotics">probiotics</span>
       <span class="example-chip" data-query="intermittent fasting">intermittent fasting</span>
-      <span class="example-chip" data-query="nicotine">nicotine</span>
+      <span class="example-chip" data-query="turmeric">turmeric</span>
       <span class="example-chip" data-query="collagen">collagen</span>
     </div>
 
@@ -628,19 +643,19 @@
 
     <div id="results">
       <div class="evidence-hero" id="evidence-hero">
-        <div class="evidence-level-row">
-          <span class="evidence-level" id="evidence-level-badge"></span>
-        </div>
-        <p class="evidence-interpretation" id="evidence-interpretation"></p>
         <div class="evidence-query-row">
           <span class="evidence-query" id="result-query"></span>
           <span class="evidence-count" id="result-count"></span>
         </div>
+        <div class="evidence-level-row">
+          <span class="evidence-level" id="evidence-level-badge"></span>
+        </div>
+        <p class="evidence-interpretation" id="evidence-interpretation"></p>
         <a id="ods-link" class="ods-link" href="#" target="_blank" rel="noopener" style="display:none">
           Read the NIH breakdown <span class="ods-link-arrow">&#8594;</span>
         </a>
         <hr class="evidence-divider" />
-        <p class="evidence-note">Study count reflects publication volume, not quality — it includes all study types: clinical trials, reviews, editorials, and retracted papers. More studies doesn't always mean stronger evidence. This is research, not a prescription. Talk to someone you trust.</p>
+        <p class="evidence-note">Study count reflects publication volume, not quality. This includes clinical trials, reviews, editorials, and retracted papers alike. More studies doesn't mean stronger evidence. This is research — not a prescription.</p>
       </div>
 
       <div class="evidence-scale">
@@ -653,7 +668,19 @@
 
       <p class="section-heading">Recent publications</p>
       <div class="study-list" id="study-list"></div>
-      <p class="not-finding">Not what you were looking for? Try a more specific term.</p>
+      <p class="not-finding" id="not-finding">Not what you were looking for? Try a more specific term, or pick one below.</p>
+      <div class="examples after-results" id="examples-after">
+        <span class="example-chip" data-query="creatine">creatine</span>
+        <span class="example-chip" data-query="vitamin D">vitamin D</span>
+        <span class="example-chip" data-query="melatonin">melatonin</span>
+        <span class="example-chip" data-query="omega-3">omega-3</span>
+        <span class="example-chip" data-query="magnesium">magnesium</span>
+        <span class="example-chip" data-query="ashwagandha">ashwagandha</span>
+        <span class="example-chip" data-query="probiotics">probiotics</span>
+        <span class="example-chip" data-query="turmeric">turmeric</span>
+        <span class="example-chip" data-query="collagen">collagen</span>
+        <span class="example-chip" data-query="intermittent fasting">intermittent fasting</span>
+      </div>
     </div>
   </main>
 
@@ -673,17 +700,19 @@
     const evidenceBadge = document.getElementById('evidence-level-badge');
     const evidenceInterpretation = document.getElementById('evidence-interpretation');
     const resultQuery = document.getElementById('result-query');
-    const resultCount = document.getElementById('result-count');
+    const resultCountEl = document.getElementById('result-count');
     const odsLink = document.getElementById('ods-link');
     const studyList = document.getElementById('study-list');
     const examplesEl = document.getElementById('examples');
+    const examplesLabelEl = document.querySelector('.examples-label');
+    const examplesAfterEl = document.getElementById('examples-after');
 
     const INTERPRETATIONS = {
       strong:   "The evidence here is solid. Multiple large studies, consistent findings.",
       moderate: "The research is building. Here's what it shows so far.",
       limited:  "Early days. There are some studies, but not enough to be certain.",
       weak:     "Very little research exists here. Be cautious about strong claims.",
-      none:     "We didn't find studies on that. Try a different term."
+      none:     "No studies found for that term. Try a different spelling or a more specific name."
     };
 
     function setView(view) {
@@ -693,22 +722,29 @@
       results.style.display    = view === 'results' ? 'block' : 'none';
     }
 
-    function formatCount(n) {
-      return n.toLocaleString();
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
     }
 
     function renderResults(data) {
+      // Query context (shown first so user knows what they're reading)
+      resultQuery.textContent = `"${data.query}"`;
+
+      // Count
+      const countSpan = document.createElement('span');
+      countSpan.className = 'evidence-count-label';
+      countSpan.textContent = 'studies';
+      resultCountEl.textContent = data.count.toLocaleString();
+      resultCountEl.appendChild(countSpan);
+
       // Evidence badge
       evidenceBadge.textContent = data.evidenceLevel;
       evidenceBadge.className = `evidence-level ${data.evidenceColor}`;
 
       // Plain-English interpretation
       evidenceInterpretation.textContent = INTERPRETATIONS[data.evidenceColor] || '';
-
-      // Query + count
-      resultQuery.textContent = `"${data.query}"`;
-      const countEl = document.getElementById('result-count');
-      countEl.innerHTML = `${formatCount(data.count)}<span class="evidence-count-label">studies</span>`;
 
       // ODS link
       if (data.odsUrl) {
@@ -718,25 +754,48 @@
         odsLink.style.display = 'none';
       }
 
-      // Studies
+      // Studies — use textContent to avoid XSS, build DOM nodes manually
       studyList.innerHTML = '';
       if (data.studies && data.studies.length > 0) {
         data.studies.forEach(study => {
           const card = document.createElement('div');
           card.className = 'study-card';
 
-          const journalParts = [study.journal, study.pubDate].filter(Boolean).join(', ');
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'study-title';
+          const titleLink = document.createElement('a');
+          titleLink.href = study.url;
+          titleLink.target = '_blank';
+          titleLink.rel = 'noopener';
+          titleLink.textContent = study.title;
+          titleDiv.appendChild(titleLink);
+          card.appendChild(titleDiv);
 
-          card.innerHTML = `
-            <div class="study-title">
-              <a href="${study.url}" target="_blank" rel="noopener">${study.title}</a>
-            </div>
-            ${journalParts ? `<div class="study-journal">${journalParts}</div>` : ''}
-          `;
+          const metaParts = [];
+          if (study.authors) metaParts.push({ text: study.authors, cls: 'study-authors' });
+          if (study.journal || study.pubDate) {
+            metaParts.push({ text: [study.journal, study.pubDate].filter(Boolean).join(', '), cls: 'study-journal' });
+          }
+
+          if (metaParts.length > 0) {
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'study-meta';
+            metaParts.forEach(part => {
+              const span = document.createElement('span');
+              span.className = part.cls;
+              span.textContent = part.text;
+              metaDiv.appendChild(span);
+            });
+            card.appendChild(metaDiv);
+          }
+
           studyList.appendChild(card);
         });
       } else {
-        studyList.innerHTML = `<div class="no-studies">No recent study details available.</div>`;
+        const noStudies = document.createElement('div');
+        noStudies.className = 'no-studies';
+        noStudies.textContent = 'No recent study details available.';
+        studyList.appendChild(noStudies);
       }
 
       setView('results');
@@ -745,9 +804,12 @@
     async function doSearch(query) {
       if (!query) return;
       btn.disabled = true;
-      setView('loading');
+
+      // Hide the initial examples section while searching
       examplesEl.style.display = 'none';
-      document.querySelector('.examples-label') && (document.querySelector('.examples-label').style.display = 'none');
+      if (examplesLabelEl) examplesLabelEl.style.display = 'none';
+
+      setView('loading');
 
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -761,7 +823,7 @@
 
         renderResults(data);
       } catch (err) {
-        errorMsg.textContent = 'Could not reach the server. Check your connection.';
+        errorMsg.textContent = 'Could not reach the server. Check your connection and try again.';
         setView('error');
       } finally {
         btn.disabled = false;
@@ -774,7 +836,8 @@
       if (q) doSearch(q);
     });
 
-    examplesEl.addEventListener('click', e => {
+    // Handle clicks on both the initial chips and the after-results chips
+    document.addEventListener('click', e => {
       const chip = e.target.closest('.example-chip');
       if (!chip) return;
       const q = chip.dataset.query;

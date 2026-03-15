@@ -114,11 +114,18 @@ app.get('/api/search', async (req, res) => {
   }
 
   try {
-    // Step 1: PubMed esearch
-    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}[Title/Abstract]&retmode=json&retmax=5&sort=pub+date`;
-    const searchRes = await fetch(searchUrl, {
-      headers: { 'User-Agent': 'does-it-work/1.0 (contact: davehamiltonj@gmail.com)' }
-    });
+    const PUBMED_HEADERS = { 'User-Agent': 'does-it-work/1.0 (contact: davehamiltonj@gmail.com)' };
+    const FETCH_TIMEOUT = 10000; // 10 seconds
+
+    function fetchWithTimeout(url, opts) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+      return fetch(url, { ...opts, signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
+    // Step 1: PubMed esearch — get total count and top IDs
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}[Title/Abstract]&retmode=json&retmax=5&sort=pub%20date`;
+    const searchRes = await fetchWithTimeout(searchUrl, { headers: PUBMED_HEADERS });
 
     if (!searchRes.ok) {
       throw new Error(`PubMed search failed: ${searchRes.status}`);
@@ -126,6 +133,9 @@ app.get('/api/search', async (req, res) => {
 
     const searchData = await searchRes.json();
     const esearch = searchData.esearchresult;
+    if (!esearch) {
+      throw new Error('Unexpected PubMed response format');
+    }
     const count = parseInt(esearch.count, 10) || 0;
     const idList = esearch.idlist || [];
 
@@ -134,20 +144,18 @@ app.get('/api/search', async (req, res) => {
     // Step 2: fetch summaries if we have IDs
     if (idList.length > 0) {
       const summaryUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${idList.join(',')}&retmode=json`;
-      const summaryRes = await fetch(summaryUrl, {
-        headers: { 'User-Agent': 'does-it-work/1.0 (contact: davehamiltonj@gmail.com)' }
-      });
+      const summaryRes = await fetchWithTimeout(summaryUrl, { headers: PUBMED_HEADERS });
 
       if (summaryRes.ok) {
         const summaryData = await summaryRes.json();
         const result = summaryData.result || {};
 
         studies = idList
-          .filter(id => result[id])
+          .filter(id => result[id] && result[id].uid)
           .map(id => {
             const article = result[id];
             const authors = article.authors || [];
-            const firstAuthor = authors.length > 0 ? authors[0].name : 'Unknown';
+            const firstAuthor = authors.length > 0 ? authors[0].name : '';
             const authorStr = authors.length > 1 ? `${firstAuthor} et al.` : firstAuthor;
             return {
               id,
@@ -177,6 +185,9 @@ app.get('/api/search', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('Search error:', err);
+    if (err.name === 'AbortError') {
+      return res.status(504).json({ error: 'PubMed took too long to respond. Try again in a moment.' });
+    }
     res.status(500).json({ error: 'Failed to fetch data. Try again in a moment.' });
   }
 });
