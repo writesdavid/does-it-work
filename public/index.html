@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Does It Work — What the research actually says</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0c1210;
+      --surface: #141c19;
+      --surface-2: #1c2923;
+      --border: #243028;
+      --border-soft: #1e2a24;
+      --text: #e6ede9;
+      --text-muted: #7a9486;
+      --text-dim: #445c50;
+
+      --accent: #0d9488;
+      --accent-hover: #14b8a8;
+      --accent-soft: rgba(13, 148, 136, 0.12);
+      --accent-border: rgba(13, 148, 136, 0.25);
+
+      --strong: #22c55e;
+      --strong-bg: rgba(34, 197, 94, 0.1);
+      --moderate: #eab308;
+      --moderate-bg: rgba(234, 179, 8, 0.1);
+      --limited: #f97316;
+      --limited-bg: rgba(249, 115, 22, 0.1);
+      --weak: #ef4444;
+      --weak-bg: rgba(239, 68, 68, 0.1);
+      --none: #7a9486;
+      --none-bg: rgba(122, 148, 134, 0.1);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      position: relative;
+      text-align: center;
+      padding: 72px 24px 52px;
+      overflow: hidden;
+    }
+
+    /* Constellation / scatter-plot dot pattern — pure CSS */
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(13,148,136,0.18) 1px, transparent 1px),
+        radial-gradient(circle, rgba(13,148,136,0.10) 1px, transparent 1px),
+        radial-gradient(circle, rgba(20,184,166,0.12) 1px, transparent 1px);
+      background-size: 64px 64px, 96px 96px, 128px 128px;
+      background-position: 0 0, 32px 48px, 16px 24px;
+      pointer-events: none;
+      mask-image: radial-gradient(ellipse 80% 100% at 50% 0%, black 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 100% at 50% 0%, black 40%, transparent 100%);
+    }
+
+    /* Minimal leaf motif — a single curved stem shape */
+    header::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      right: calc(50% - 280px);
+      width: 48px;
+      height: 64px;
+      border-left: 1.5px solid rgba(13,148,136,0.22);
+      border-bottom: 1.5px solid rgba(13,148,136,0.22);
+      border-radius: 0 0 0 40px;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .site-title {
+      position: relative;
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .site-title span {
+      color: var(--accent);
+    }
+
+    .site-tagline {
+      position: relative;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+
+    .site-sub {
+      position: relative;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      max-width: 460px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    /* ---- MAIN ---- */
+    main {
+      flex: 1;
+      max-width: 780px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ---- SEARCH ---- */
+    .search-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1.05rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      line-height: 1.4;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+    }
+
+    .search-btn {
+      padding: 18px 30px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .search-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .search-helper {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    /* ---- EXAMPLES ---- */
+    .examples-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: 0.03em;
+    }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 52px;
+      justify-content: center;
+    }
+
+    .example-chip {
+      padding: 7px 16px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--accent-hover);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .example-chip:hover {
+      background: rgba(13, 148, 136, 0.22);
+      border-color: rgba(20, 184, 166, 0.5);
+      color: #5eead4;
+    }
+
+    /* ---- LOADING ---- */
+    #loading {
+      display: none;
+      text-align: center;
+      padding: 64px 0;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ---- ERROR ---- */
+    #error-msg {
+      display: none;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 10px;
+      padding: 16px 20px;
+      color: #fca5a5;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    /* ---- EMPTY STATE ---- */
+    #empty-state {
+      text-align: center;
+      padding: 32px 0 16px;
+    }
+
+    .empty-motif {
+      margin-bottom: 20px;
+    }
+
+    /* Small SVG-style dot cluster as empty state motif */
+    .empty-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      align-items: flex-end;
+      height: 32px;
+      margin-bottom: 6px;
+    }
+
+    .empty-dot {
+      border-radius: 50%;
+      background: var(--text-dim);
+      opacity: 0.5;
+    }
+
+    .empty-dot:nth-child(1) { width: 5px; height: 5px; }
+    .empty-dot:nth-child(2) { width: 8px; height: 8px; opacity: 0.35; }
+    .empty-dot:nth-child(3) { width: 5px; height: 5px; opacity: 0.45; }
+    .empty-dot:nth-child(4) { width: 10px; height: 10px; opacity: 0.25; }
+    .empty-dot:nth-child(5) { width: 6px; height: 6px; opacity: 0.4; }
+    .empty-dot:nth-child(6) { width: 4px; height: 4px; opacity: 0.3; }
+    .empty-dot:nth-child(7) { width: 7px; height: 7px; opacity: 0.35; }
+
+    .empty-title {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .empty-sub {
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      max-width: 360px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ---- RESULTS ---- */
+    #results {
+      display: none;
+    }
+
+    /* Evidence hero */
+    .evidence-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 36px;
+      margin-bottom: 20px;
+    }
+
+    .evidence-level-row {
+      margin-bottom: 8px;
+    }
+
+    .evidence-level {
+      display: inline-block;
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding: 10px 22px;
+      border-radius: 10px;
+    }
+
+    .evidence-level.strong   { color: var(--strong);   background: var(--strong-bg);   }
+    .evidence-level.moderate { color: var(--moderate); background: var(--moderate-bg); }
+    .evidence-level.limited  { color: var(--limited);  background: var(--limited-bg);  }
+    .evidence-level.weak     { color: var(--weak);     background: var(--weak-bg);     }
+    .evidence-level.none     { color: var(--none);     background: var(--none-bg);     }
+
+    .evidence-interpretation {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .evidence-query-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .evidence-query {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .evidence-count {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: -0.01em;
+    }
+
+    .evidence-count-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-weight: 400;
+      margin-left: 3px;
+    }
+
+    .evidence-divider {
+      border: none;
+      border-top: 1px solid var(--border-soft);
+      margin: 14px 0;
+    }
+
+    .evidence-note {
+      font-size: 0.825rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .ods-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--accent-hover);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .ods-link:hover {
+      background: rgba(13, 148, 136, 0.2);
+      border-color: rgba(20, 184, 166, 0.4);
+      text-decoration: none;
+      color: #5eead4;
+    }
+
+    .ods-link-arrow {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* Evidence scale legend */
+    .evidence-scale {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .scale-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .scale-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .scale-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .scale-dot.strong   { background: var(--strong); }
+    .scale-dot.moderate { background: var(--moderate); }
+    .scale-dot.limited  { background: var(--limited); }
+    .scale-dot.weak     { background: var(--weak); }
+
+    /* Studies section */
+    .section-heading {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .study-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .study-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 18px;
+      transition: border-color 0.15s;
+    }
+
+    .study-card:hover {
+      border-color: rgba(13, 148, 136, 0.3);
+    }
+
+    .study-title {
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 5px;
+      line-height: 1.45;
+    }
+
+    .study-title a {
+      color: var(--text);
+    }
+
+    .study-title a:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    .study-journal {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .no-studies {
+      text-align: center;
+      padding: 28px;
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    /* Not finding helper */
+    .not-finding {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 10px;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      line-height: 1.7;
+    }
+
+    footer .footer-disclaimer {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 520px) {
+      header { padding: 52px 24px 36px; }
+      .site-title { font-size: 2rem; }
+      header::after { display: none; }
+      .search-form { flex-direction: column; }
+      .evidence-level { font-size: 2rem; }
+      .evidence-hero { padding: 24px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 class="site-title">Does It <span>Work</span></h1>
+    <p class="site-tagline">What the research actually says.</p>
+    <p class="site-sub">Before supplements, there were healers — grandmothers, elders, people who knew. That knowledge got replaced by marketing. This brings you back to the source: 37 million published studies, filtered for what matters.</p>
+  </header>
+
+  <main>
+    <form class="search-form" id="search-form" autocomplete="off">
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="What are you wondering about?"
+        aria-label="Search for a supplement or health claim"
+        spellcheck="false"
+      />
+      <button type="submit" class="search-btn" id="search-btn">Ask</button>
+    </form>
+    <p class="search-helper">A supplement, a nutrient, a health claim — ask it plainly.</p>
+
+    <p class="examples-label">People are asking about</p>
+    <div class="examples" id="examples">
+      <span class="example-chip" data-query="creatine">creatine</span>
+      <span class="example-chip" data-query="vitamin D">vitamin D</span>
+      <span class="example-chip" data-query="melatonin">melatonin</span>
+      <span class="example-chip" data-query="omega-3">omega-3</span>
+      <span class="example-chip" data-query="magnesium">magnesium</span>
+      <span class="example-chip" data-query="ashwagandha">ashwagandha</span>
+      <span class="example-chip" data-query="probiotics">probiotics</span>
+      <span class="example-chip" data-query="intermittent fasting">intermittent fasting</span>
+      <span class="example-chip" data-query="nicotine">nicotine</span>
+      <span class="example-chip" data-query="collagen">collagen</span>
+    </div>
+
+    <div id="error-msg" role="alert"></div>
+
+    <div id="loading" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="loading-text">Searching PubMed...</p>
+    </div>
+
+    <div id="empty-state">
+      <div class="empty-motif">
+        <div class="empty-dots">
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+        </div>
+      </div>
+      <p class="empty-title">Ask your question.</p>
+      <p class="empty-sub">Whatever you're wondering — we'll show you what the published research actually says. No agenda. Just the evidence.</p>
+    </div>
+
+    <div id="results">
+      <div class="evidence-hero" id="evidence-hero">
+        <div class="evidence-level-row">
+          <span class="evidence-level" id="evidence-level-badge"></span>
+        </div>
+        <p class="evidence-interpretation" id="evidence-interpretation"></p>
+        <div class="evidence-query-row">
+          <span class="evidence-query" id="result-query"></span>
+          <span class="evidence-count" id="result-count"></span>
+        </div>
+        <a id="ods-link" class="ods-link" href="#" target="_blank" rel="noopener" style="display:none">
+          Read the NIH breakdown <span class="ods-link-arrow">&#8594;</span>
+        </a>
+        <hr class="evidence-divider" />
+        <p class="evidence-note">Study count reflects publication volume, not quality — it includes all study types: clinical trials, reviews, editorials, and retracted papers. More studies doesn't always mean stronger evidence. This is research, not a prescription. Talk to someone you trust.</p>
+      </div>
+
+      <div class="evidence-scale">
+        <span class="scale-label">How to read this</span>
+        <span class="scale-item"><span class="scale-dot strong"></span> Strong — 500+ studies, consistent findings</span>
+        <span class="scale-item"><span class="scale-dot moderate"></span> Moderate — 50–499 studies, research is building</span>
+        <span class="scale-item"><span class="scale-dot limited"></span> Limited — 10–49 studies, early days</span>
+        <span class="scale-item"><span class="scale-dot weak"></span> Weak — fewer than 10, be cautious</span>
+      </div>
+
+      <p class="section-heading">Recent publications</p>
+      <div class="study-list" id="study-list"></div>
+      <p class="not-finding">Not what you were looking for? Try a more specific term.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p class="footer-disclaimer">This is research, not a prescription. Talk to someone you trust.</p>
+    <p>Data: PubMed / NCBI &middot; NIH ODS &middot; Built by David Hamilton</p>
+  </footer>
+
+  <script>
+    const form = document.getElementById('search-form');
+    const input = document.getElementById('search-input');
+    const btn = document.getElementById('search-btn');
+    const loading = document.getElementById('loading');
+    const errorMsg = document.getElementById('error-msg');
+    const emptyState = document.getElementById('empty-state');
+    const results = document.getElementById('results');
+    const evidenceBadge = document.getElementById('evidence-level-badge');
+    const evidenceInterpretation = document.getElementById('evidence-interpretation');
+    const resultQuery = document.getElementById('result-query');
+    const resultCount = document.getElementById('result-count');
+    const odsLink = document.getElementById('ods-link');
+    const studyList = document.getElementById('study-list');
+    const examplesEl = document.getElementById('examples');
+
+    const INTERPRETATIONS = {
+      strong:   "The evidence here is solid. Multiple large studies, consistent findings.",
+      moderate: "The research is building. Here's what it shows so far.",
+      limited:  "Early days. There are some studies, but not enough to be certain.",
+      weak:     "Very little research exists here. Be cautious about strong claims.",
+      none:     "We didn't find studies on that. Try a different term."
+    };
+
+    function setView(view) {
+      loading.style.display    = view === 'loading' ? 'block' : 'none';
+      errorMsg.style.display   = view === 'error'   ? 'block' : 'none';
+      emptyState.style.display = view === 'empty'   ? 'block' : 'none';
+      results.style.display    = view === 'results' ? 'block' : 'none';
+    }
+
+    function formatCount(n) {
+      return n.toLocaleString();
+    }
+
+    function renderResults(data) {
+      // Evidence badge
+      evidenceBadge.textContent = data.evidenceLevel;
+      evidenceBadge.className = `evidence-level ${data.evidenceColor}`;
+
+      // Plain-English interpretation
+      evidenceInterpretation.textContent = INTERPRETATIONS[data.evidenceColor] || '';
+
+      // Query + count
+      resultQuery.textContent = `"${data.query}"`;
+      const countEl = document.getElementById('result-count');
+      countEl.innerHTML = `${formatCount(data.count)}<span class="evidence-count-label">studies</span>`;
+
+      // ODS link
+      if (data.odsUrl) {
+        odsLink.href = data.odsUrl;
+        odsLink.style.display = 'inline-flex';
+      } else {
+        odsLink.style.display = 'none';
+      }
+
+      // Studies
+      studyList.innerHTML = '';
+      if (data.studies && data.studies.length > 0) {
+        data.studies.forEach(study => {
+          const card = document.createElement('div');
+          card.className = 'study-card';
+
+          const journalParts = [study.journal, study.pubDate].filter(Boolean).join(', ');
+
+          card.innerHTML = `
+            <div class="study-title">
+              <a href="${study.url}" target="_blank" rel="noopener">${study.title}</a>
+            </div>
+            ${journalParts ? `<div class="study-journal">${journalParts}</div>` : ''}
+          `;
+          studyList.appendChild(card);
+        });
+      } else {
+        studyList.innerHTML = `<div class="no-studies">No recent study details available.</div>`;
+      }
+
+      setView('results');
+    }
+
+    async function doSearch(query) {
+      if (!query) return;
+      btn.disabled = true;
+      setView('loading');
+      examplesEl.style.display = 'none';
+      document.querySelector('.examples-label') && (document.querySelector('.examples-label').style.display = 'none');
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.error || 'Something went wrong. Try again.';
+          setView('error');
+          return;
+        }
+
+        renderResults(data);
+      } catch (err) {
+        errorMsg.textContent = 'Could not reach the server. Check your connection.';
+        setView('error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (q) doSearch(q);
+    });
+
+    examplesEl.addEventListener('click', e => {
+      const chip = e.target.closest('.example-chip');
+      if (!chip) return;
+      const q = chip.dataset.query;
+      input.value = q;
+      doSearch(q);
+    });
+  </script>
+</body>
+</html>
