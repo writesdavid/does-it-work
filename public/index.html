@@ -342,10 +342,10 @@
 
     .evidence-level {
       display: inline-block;
-      font-size: 2.6rem;
-      font-weight: 800;
+      font-size: 1.5rem;
+      font-weight: 700;
       line-height: 1;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
       padding: 10px 22px;
       border-radius: 10px;
     }
@@ -575,7 +575,7 @@
       header::after { display: none; }
       .search-form { flex-direction: column; }
       .search-btn { padding: 14px 20px; }
-      .evidence-level { font-size: 2rem; }
+      .evidence-level { font-size: 1.2rem; }
       .evidence-hero { padding: 24px 22px; }
       .evidence-scale { flex-direction: column; gap: 6px; }
       .study-meta { flex-direction: column; gap: 2px; }
@@ -659,11 +659,11 @@
       </div>
 
       <div class="evidence-scale">
-        <span class="scale-label">How to read this</span>
-        <span class="scale-item"><span class="scale-dot strong"></span> Strong — 500+ studies, consistent findings</span>
-        <span class="scale-item"><span class="scale-dot moderate"></span> Moderate — 50–499 studies, research is building</span>
-        <span class="scale-item"><span class="scale-dot limited"></span> Limited — 10–49 studies, early days</span>
-        <span class="scale-item"><span class="scale-dot weak"></span> Weak — fewer than 10, be cautious</span>
+        <span class="scale-label">This measures publication volume, not proof of effectiveness</span>
+        <span class="scale-item"><span class="scale-dot strong"></span> Strong signal — 500+ studies indexed</span>
+        <span class="scale-item"><span class="scale-dot moderate"></span> Moderate signal — 50–499 studies</span>
+        <span class="scale-item"><span class="scale-dot limited"></span> Limited signal — 10–49 studies</span>
+        <span class="scale-item"><span class="scale-dot weak"></span> Weak signal — fewer than 10</span>
       </div>
 
       <p class="section-heading">Recent publications</p>
@@ -708,11 +708,11 @@
     const examplesAfterEl = document.getElementById('examples-after');
 
     const INTERPRETATIONS = {
-      strong:   "The evidence here is solid. Multiple large studies, consistent findings.",
-      moderate: "The research is building. Here's what it shows so far.",
-      limited:  "Early days. There are some studies, but not enough to be certain.",
-      weak:     "Very little research exists here. Be cautious about strong claims.",
-      none:     "No studies found for that term. Try a different spelling or a more specific name."
+      strong:   "High publication volume. That doesn't make it effective — it means there's a lot of research to read.",
+      moderate: "Research is building. Not enough volume to draw firm conclusions.",
+      limited:  "Few studies exist. Take any strong claims with real skepticism.",
+      weak:     "Almost no research on this. Be very cautious.",
+      none:     "No studies found. Try a different term or a more specific name."
     };
 
     function setView(view) {

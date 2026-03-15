@@ -82,11 +82,11 @@ const ODS_SHEETS = {
 };
 
 function getEvidenceLevel(count) {
-  if (count >= 500) return { level: 'Strong', color: 'strong' };
-  if (count >= 50) return { level: 'Moderate', color: 'moderate' };
-  if (count >= 10) return { level: 'Limited', color: 'limited' };
-  if (count > 0) return { level: 'Weak', color: 'weak' };
-  return { level: 'No Data', color: 'none' };
+  if (count >= 500) return { level: 'Strong research signal', color: 'strong' };
+  if (count >= 50) return { level: 'Moderate research signal', color: 'moderate' };
+  if (count >= 10) return { level: 'Limited research signal', color: 'limited' };
+  if (count > 0) return { level: 'Weak research signal', color: 'weak' };
+  return { level: 'No studies found', color: 'none' };
 }
 
 function getOdsUrl(query) {
