@@ -224,6 +224,13 @@
       .evidence-scale { flex-direction: column; gap: 0.4rem; }
       .study-meta     { flex-direction: column; gap: 2px; }
     }
+
+    /* ── Evidence pull animations ────────────────────────────────────── */
+    @keyframes card-rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .study-card-anim { animation: card-rise 0.35s ease-out both; }
   </style>
 </head>
 <body>
@@ -258,7 +265,7 @@
           aria-label="Search for a supplement or health claim"
           spellcheck="false"
         />
-        <button type="submit" class="op-btn" id="search-btn">Ask</button>
+        <button type="submit" class="op-btn" id="search-btn">Pull the research</button>
       </form>
     </div>
 
@@ -282,7 +289,7 @@
 
     <div class="op-loading" id="loading" aria-live="polite">
       <div class="op-spinner"></div>
-      <span>Searching PubMed...</span>
+      <span>Pulling the research...</span>
     </div>
 
     <div id="empty-state" class="op-empty" style="margin-top:2rem;">
@@ -361,6 +368,18 @@
     const examplesLabelEl = document.querySelector('.op-label');
     const examplesAfterEl = document.getElementById('examples-after');
 
+    function countUp(el, target, duration = 800) {
+      if (!el || target == null) return;
+      const start = performance.now();
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        el.textContent = Math.round(progress * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
     const INTERPRETATIONS = {
       strong:   "High publication volume. That doesn't make it effective — it means there's a lot of research to read.",
       moderate: "Research is building. Not enough volume to draw firm conclusions.",
@@ -386,12 +405,16 @@
       // Query context (shown first so user knows what they're reading)
       resultQuery.textContent = `"${data.query}"`;
 
-      // Count
+      // Count (animated)
+      const countNum = document.createElement('span');
+      countNum.textContent = '0';
       const countSpan = document.createElement('span');
       countSpan.className = 'evidence-count-label';
-      countSpan.textContent = 'studies';
-      resultCountEl.textContent = data.count.toLocaleString();
+      countSpan.textContent = ' studies';
+      resultCountEl.textContent = '';
+      resultCountEl.appendChild(countNum);
       resultCountEl.appendChild(countSpan);
+      countUp(countNum, data.count);
 
       // Evidence badge
       evidenceBadge.textContent = data.evidenceLevel;
@@ -411,9 +434,10 @@
       // Studies — use textContent to avoid XSS, build DOM nodes manually
       studyList.innerHTML = '';
       if (data.studies && data.studies.length > 0) {
-        data.studies.forEach(study => {
+        data.studies.forEach((study, index) => {
           const card = document.createElement('div');
-          card.className = 'op-card study-card';
+          card.className = 'op-card study-card study-card-anim';
+          card.style.animationDelay = `${index * 60}ms`;
 
           const titleDiv = document.createElement('div');
           titleDiv.className = 'study-title';
