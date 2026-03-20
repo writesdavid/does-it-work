@@ -179,6 +179,18 @@ app.get('/api/search', async (req, res) => {
       evidenceLevel: evidence.level,
       evidenceColor: evidence.color,
       odsUrl,
+      source_url: 'https://pubmed.ncbi.nlm.nih.gov',
+      freshness: new Date().toISOString(),
+      confidence: {
+        completeness: 0.95,
+        methodology: 'indexed-research-database',
+        note: 'PubMed indexes 35M+ citations. Study count indicates research volume, not efficacy.',
+      },
+      citations: {
+        statement: `According to PubMed/MEDLINE, ${count} studies found for "${q}", evidence level: ${evidence.level}`,
+        source_url: 'https://pubmed.ncbi.nlm.nih.gov',
+        license: 'US Government Public Domain',
+      },
     };
 
     cache.set(cacheKey, { ts: Date.now(), data });

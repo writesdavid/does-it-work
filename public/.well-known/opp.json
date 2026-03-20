@@ -1,0 +1,35 @@
+{
+  "opp_version": "0.1",
+  "name": "Does It Work",
+  "description": "PubMed research volume lookup for supplements, treatments, and health interventions. Returns study counts, evidence levels, and recent citations.",
+  "source_url": "https://pubmed.ncbi.nlm.nih.gov",
+  "base_url": "https://health.openprimitive.com",
+  "endpoints": [
+    {
+      "path": "/api/search",
+      "method": "GET",
+      "parameters": [
+        {
+          "name": "q",
+          "type": "string",
+          "required": true,
+          "description": "Supplement, treatment, or health intervention to search PubMed for"
+        }
+      ],
+      "response_fields": {
+        "query": "Original search term",
+        "count": "Total PubMed studies matching the query",
+        "studies": "Up to 5 recent studies with title, journal, date, authors, and URL",
+        "evidenceLevel": "Human-readable evidence signal (Strong/Moderate/Limited/Weak/None)",
+        "evidenceColor": "Evidence tier key for display",
+        "odsUrl": "NIH Office of Dietary Supplements fact sheet URL, if available",
+        "source_url": "Canonical source URL",
+        "freshness": "ISO 8601 timestamp of response generation",
+        "confidence": "Completeness score, methodology, and caveats",
+        "citations": "Pre-formatted citation with source and license"
+      }
+    }
+  ],
+  "license": "US Government Public Domain",
+  "contact": "davehamiltonj@gmail.com"
+}
